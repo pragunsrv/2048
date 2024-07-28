@@ -3,13 +3,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
     const scoreDisplay = document.getElementById('score');
     const gameOverDisplay = document.getElementById('game-over');
+    const resetButton = document.getElementById('reset-button');
+    const undoButton = document.getElementById('undo-button');
     let score = 0;
+    let previousState = [];
+    let previousScore = 0;
 
     // Initialize the game with two random tiles
     function initGame() {
         addRandomTile();
         addRandomTile();
         updateScore(0);
+    }
+
+    // Save the current state for undo
+    function saveState() {
+        previousState = cells.map(cell => cell.innerHTML);
+        previousScore = score;
+    }
+
+    // Restore the previous state
+    function undoMove() {
+        cells.forEach((cell, index) => {
+            cell.innerHTML = previousState[index];
+            cell.style.backgroundColor = getTileColor(previousState[index]);
+        });
+        updateScore(previousScore);
     }
 
     // Add a random tile (2 or 4) to an empty cell
@@ -25,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Move tiles in the specified direction
     function moveTiles(direction) {
         let hasMoved = false;
+        saveState();
 
         // Group cells by rows or columns
         const groups = [];
@@ -112,25 +132,42 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreDisplay.innerHTML = `Score: ${score}`;
     }
 
-    // Check if the game is over
+    // Check if the game is over (no more possible moves)
     function isGameOver() {
-        const emptyCells = cells.filter(cell => !cell.innerHTML);
-        if (emptyCells.length > 0) {
-            return false;
-        }
-        for (let i = 0; i < cells.length; i++) {
-            const current = parseInt(cells[i].innerHTML) || 0;
-            const right = i % 4 < 3 ? parseInt(cells[i + 1].innerHTML) || 0 : 0;
-            const down = i < 12 ? parseInt(cells[i + 4].innerHTML) || 0 : 0;
-            if (current === right || current === down) {
-                return false;
+        if (cells.some(cell => !cell.innerHTML)) return false;
+
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 4; col++) {
+                const cell = cells[row * 4 + col];
+                const value = parseInt(cell.innerHTML);
+                if ((row > 0 && value === parseInt(cells[(row - 1) * 4 + col].innerHTML)) ||
+                    (row < 3 && value === parseInt(cells[(row + 1) * 4 + col].innerHTML)) ||
+                    (col > 0 && value === parseInt(cells[row * 4 + col - 1].innerHTML)) ||
+                    (col < 3 && value === parseInt(cells[row * 4 + col + 1].innerHTML))) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    // Handle keyboard input for moving tiles
-    document.addEventListener('keydown', (event) => {
+    // Reset the game
+    function resetGame() {
+        cells.forEach(cell => {
+            cell.innerHTML = '';
+            cell.style.backgroundColor = '#cdc1b4';
+        });
+        gameOverDisplay.classList.add('hidden');
+        score = 0;
+        updateScore(score);
+        initGame();
+    }
+
+    // Event listeners
+    resetButton.addEventListener('click', resetGame);
+    undoButton.addEventListener('click', undoMove);
+
+    document.addEventListener('keydown', event => {
         switch (event.key) {
             case 'ArrowUp':
                 moveTiles('up');
