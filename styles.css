@@ -10,8 +10,9 @@ body {
 
 #game-container {
     width: 500px;
-    height: 500px;
+    height: 600px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: #bbada0;
@@ -20,9 +21,18 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+#score-container {
+    margin-bottom: 10px;
+}
+
+#score {
+    font-size: 24px;
+    color: #776e65;
+}
+
 #grid-container {
     width: 100%;
-    height: 100%;
+    height: 500px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 10px;
@@ -39,4 +49,16 @@ body {
     font-size: 24px;
     font-weight: bold;
     color: #776e65;
+}
+
+#game-over {
+    font-size: 48px;
+    color: red;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hidden {
+    display: none;
 }

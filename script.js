@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('grid-container');
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
+    const scoreDisplay = document.getElementById('score');
+    const gameOverDisplay = document.getElementById('game-over');
+    let score = 0;
 
     // Initialize the game with two random tiles
     function initGame() {
         addRandomTile();
         addRandomTile();
+        updateScore(0);
     }
 
     // Add a random tile (2 or 4) to an empty cell
@@ -64,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (hasMoved) {
             addRandomTile();
+            updateScore(score);
+            if (isGameOver()) {
+                gameOverDisplay.classList.remove('hidden');
+            }
         }
     }
 
@@ -73,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < newValues.length - 1; i++) {
             if (newValues[i] === newValues[i + 1]) {
                 newValues[i] *= 2;
+                updateScore(score + newValues[i]);
                 newValues[i + 1] = 0;
             }
         }
@@ -95,6 +104,29 @@ document.addEventListener('DOMContentLoaded', () => {
             case 2048: return '#edc22e';
             default: return '#cdc1b4';
         }
+    }
+
+    // Update the score display
+    function updateScore(newScore) {
+        score = newScore;
+        scoreDisplay.innerHTML = `Score: ${score}`;
+    }
+
+    // Check if the game is over
+    function isGameOver() {
+        const emptyCells = cells.filter(cell => !cell.innerHTML);
+        if (emptyCells.length > 0) {
+            return false;
+        }
+        for (let i = 0; i < cells.length; i++) {
+            const current = parseInt(cells[i].innerHTML) || 0;
+            const right = i % 4 < 3 ? parseInt(cells[i + 1].innerHTML) || 0 : 0;
+            const down = i < 12 ? parseInt(cells[i + 4].innerHTML) || 0 : 0;
+            if (current === right || current === down) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Handle keyboard input for moving tiles
