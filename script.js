@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameOverDisplay = document.getElementById('game-over');
     const resetButton = document.getElementById('reset-button');
     const undoButton = document.getElementById('undo-button');
+    const aiButton = document.getElementById('ai-button');
     let score = 0;
     let previousState = [];
     let previousScore = 0;
@@ -163,9 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame();
     }
 
+    // AI Move: Make a move based on a simple strategy
+    function aiMove() {
+        const directions = ['up', 'down', 'left', 'right'];
+        const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+        moveTiles(randomDirection);
+    }
+
     // Event listeners
     resetButton.addEventListener('click', resetGame);
     undoButton.addEventListener('click', undoMove);
+    aiButton.addEventListener('click', aiMove);
 
     document.addEventListener('keydown', event => {
         switch (event.key) {
