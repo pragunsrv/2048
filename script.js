@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('grid-container');
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
 
-    // Initialize the game with two random cells
+    // Initialize the game with two random tiles
     function initGame() {
         addRandomTile();
         addRandomTile();
@@ -18,20 +18,99 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Move tiles in the specified direction
+    function moveTiles(direction) {
+        let hasMoved = false;
+
+        // Group cells by rows or columns
+        const groups = [];
+        if (direction === 'up' || direction === 'down') {
+            for (let col = 0; col < 4; col++) {
+                const group = [];
+                for (let row = 0; row < 4; row++) {
+                    group.push(cells[row * 4 + col]);
+                }
+                groups.push(group);
+            }
+        } else if (direction === 'left' || direction === 'right') {
+            for (let row = 0; row < 4; row++) {
+                const group = [];
+                for (let col = 0; col < 4; col++) {
+                    group.push(cells[row * 4 + col]);
+                }
+                groups.push(group);
+            }
+        }
+
+        // Move and merge tiles within each group
+        groups.forEach(group => {
+            const values = group.map(cell => parseInt(cell.innerHTML) || 0);
+            let newValues;
+
+            if (direction === 'up' || direction === 'left') {
+                newValues = mergeTiles(values);
+            } else if (direction === 'down' || direction === 'right') {
+                newValues = mergeTiles(values.reverse()).reverse();
+            }
+
+            group.forEach((cell, index) => {
+                if (cell.innerHTML != newValues[index]) {
+                    hasMoved = true;
+                }
+                cell.innerHTML = newValues[index] ? newValues[index] : '';
+                cell.style.backgroundColor = getTileColor(newValues[index]);
+            });
+        });
+
+        if (hasMoved) {
+            addRandomTile();
+        }
+    }
+
+    // Merge tiles with the same value
+    function mergeTiles(values) {
+        const newValues = values.filter(value => value);
+        for (let i = 0; i < newValues.length - 1; i++) {
+            if (newValues[i] === newValues[i + 1]) {
+                newValues[i] *= 2;
+                newValues[i + 1] = 0;
+            }
+        }
+        return newValues.filter(value => value).concat(Array(4 - newValues.length).fill(0));
+    }
+
+    // Get the background color for a tile value
+    function getTileColor(value) {
+        switch (value) {
+            case 2: return '#eee4da';
+            case 4: return '#ede0c8';
+            case 8: return '#f2b179';
+            case 16: return '#f59563';
+            case 32: return '#f67c5f';
+            case 64: return '#f65e3b';
+            case 128: return '#edcf72';
+            case 256: return '#edcc61';
+            case 512: return '#edc850';
+            case 1024: return '#edc53f';
+            case 2048: return '#edc22e';
+            default: return '#cdc1b4';
+        }
+    }
+
     // Handle keyboard input for moving tiles
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowUp':
-                // Handle up arrow key
+                moveTiles('up');
                 break;
             case 'ArrowDown':
-                // Handle down arrow key
+                moveTiles('down');
                 break;
             case 'ArrowLeft':
-                // Handle left arrow key
+                moveTiles('left');
                 break;
             case 'ArrowRight':
-                // Handle right arrow key
+                moveTiles('right');
                 break;
         }
     });
