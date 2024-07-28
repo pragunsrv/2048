@@ -2,7 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('grid-container');
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
 
+<<<<<<< HEAD
     // Initialize the game with two random tiles
+=======
+    // Initialize the game with two random cells
+>>>>>>> 1c10f3e11419110a4490c46cdfe407bc30aa2ba8
     function initGame() {
         addRandomTile();
         addRandomTile();
@@ -18,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+<<<<<<< HEAD
     // Move tiles in the specified direction
     function moveTiles(direction) {
         let hasMoved = false;
@@ -97,10 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+=======
+>>>>>>> 1c10f3e11419110a4490c46cdfe407bc30aa2ba8
     // Handle keyboard input for moving tiles
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowUp':
+<<<<<<< HEAD
                 moveTiles('up');
                 break;
             case 'ArrowDown':
@@ -111,6 +119,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'ArrowRight':
                 moveTiles('right');
+=======
+                // Handle up arrow key
+                break;
+            case 'ArrowDown':
+                // Handle down arrow key
+                break;
+            case 'ArrowLeft':
+                // Handle left arrow key
+                break;
+            case 'ArrowRight':
+                // Handle right arrow key
+>>>>>>> 1c10f3e11419110a4490c46cdfe407bc30aa2ba8
                 break;
         }
     });
