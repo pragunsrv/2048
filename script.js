@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay = document.getElementById('score');
     const highScoreDisplay = document.getElementById('high-score');
     const gameOverDisplay = document.getElementById('game-over');
+    const congratulationsDisplay = document.getElementById('congratulations');
     const resetButton = document.getElementById('reset-button');
     const undoButton = document.getElementById('undo-button');
     const aiButton = document.getElementById('ai-button');
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hasMoved) {
             addRandomTile();
             updateScore(score);
+            check2048();
             if (isGameOver()) {
                 gameOverDisplay.classList.remove('hidden');
             }
@@ -162,6 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    // Check if 2048 tile is achieved
+    function check2048() {
+        if (cells.some(cell => parseInt(cell.innerHTML) === 2048)) {
+            congratulationsDisplay.classList.remove('hidden');
+        }
+    }
+
     // Reset the game
     function resetGame() {
         cells.forEach(cell => {
@@ -169,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.style.backgroundColor = '#cdc1b4';
         });
         gameOverDisplay.classList.add('hidden');
+        congratulationsDisplay.classList.add('hidden');
         score = 0;
         updateScore(score);
         initGame();

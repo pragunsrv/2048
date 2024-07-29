@@ -70,12 +70,16 @@ body {
     color: #776e65;
 }
 
-#game-over {
+#game-over, #congratulations {
     font-size: 48px;
     color: red;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+}
+
+#congratulations {
+    color: green;
 }
 
 .hidden {
