@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('grid-container');
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
     const scoreDisplay = document.getElementById('score');
+    const highScoreDisplay = document.getElementById('high-score');
     const gameOverDisplay = document.getElementById('game-over');
     const resetButton = document.getElementById('reset-button');
     const undoButton = document.getElementById('undo-button');
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('save-button');
     const loadButton = document.getElementById('load-button');
     let score = 0;
+    let highScore = 0;
     let previousState = [];
     let previousScore = 0;
 
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addRandomTile();
         addRandomTile();
         updateScore(0);
+        loadHighScore();
     }
 
     // Save the current state for undo
@@ -74,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = group.map(cell => parseInt(cell.innerHTML) || 0);
             let newValues;
 
-            if (direction === 'up' || direction === 'left') {
+            if (direction === 'up' || 'left') {
                 newValues = mergeTiles(values);
-            } else if (direction === 'down' || direction === 'right') {
+            } else if (direction === 'down' || 'right') {
                 newValues = mergeTiles(values.reverse()).reverse();
             }
 
@@ -133,6 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateScore(newScore) {
         score = newScore;
         scoreDisplay.innerHTML = `Score: ${score}`;
+        if (score > highScore) {
+            highScore = score;
+            highScoreDisplay.innerHTML = `High Score: ${highScore}`;
+            saveHighScore(highScore);
+        }
     }
 
     // Check if the game is over (no more possible moves)
@@ -178,12 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameState = cells.map(cell => cell.innerHTML);
         localStorage.setItem('2048-gameState', JSON.stringify(gameState));
         localStorage.setItem('2048-score', score);
+        localStorage.setItem('2048-highScore', highScore);
     }
 
     // Load the game state from localStorage
     function loadGame() {
         const savedGameState = JSON.parse(localStorage.getItem('2048-gameState'));
         const savedScore = parseInt(localStorage.getItem('2048-score'));
+        const savedHighScore = parseInt(localStorage.getItem('2048-highScore'));
 
         if (savedGameState && savedScore >= 0) {
             cells.forEach((cell, index) => {
@@ -191,6 +201,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.style.backgroundColor = getTileColor(savedGameState[index]);
             });
             updateScore(savedScore);
+            if (savedHighScore) {
+                highScore = savedHighScore;
+                highScoreDisplay.innerHTML = `High Score: ${highScore}`;
+            }
+        }
+    }
+
+    // Save the high score to localStorage
+    function saveHighScore(score) {
+        localStorage.setItem('2048-highScore', score);
+    }
+
+    // Load the high score from localStorage
+    function loadHighScore() {
+        const savedHighScore = parseInt(localStorage.getItem('2048-highScore'));
+        if (savedHighScore) {
+            highScore = savedHighScore;
+            highScoreDisplay.innerHTML = `High Score: ${highScore}`;
         }
     }
 

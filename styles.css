@@ -29,7 +29,7 @@ body {
     width: 100%;
 }
 
-#score {
+#score, #high-score {
     font-size: 24px;
     color: #776e65;
 }
