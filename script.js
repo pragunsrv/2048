@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiButton = document.getElementById('ai-button');
     const saveButton = document.getElementById('save-button');
     const loadButton = document.getElementById('load-button');
+    const leaderboard = document.getElementById('leaderboard');
     let score = 0;
     let highScore = 0;
     let previousState = [];
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addRandomTile();
         updateScore(0);
         loadHighScore();
+        loadLeaderboard();
         startTimer();
     }
 
@@ -70,8 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const emptyCells = cells.filter(cell => !cell.innerHTML);
         if (emptyCells.length > 0) {
             const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            randomCell.innerHTML = Math.random() < 0.9 ? 2 : 4;
-            randomCell.style.backgroundColor = randomCell.innerHTML == 2 ? '#eee4da' : '#ede0c8';
+            const newValue = Math.random() < 0.9 ? 2 : 4;
+            randomCell.innerHTML = newValue;
+            randomCell.style.backgroundColor = newValue == 2 ? '#eee4da' : '#ede0c8';
+            randomCell.classList.add('new-tile');
+            setTimeout(() => randomCell.classList.remove('new-tile'), 200);
         }
     }
 
@@ -90,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 groups.push(group);
             }
-        } else if (direction === 'left' || direction === 'right') {
+        } else {
             for (let row = 0; row < 4; row++) {
                 const group = [];
                 for (let col = 0; col < 4; col++) {
@@ -103,18 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Move and merge tiles within each group
         groups.forEach(group => {
             const values = group.map(cell => parseInt(cell.innerHTML) || 0);
-            let newValues;
-
-            if (direction === 'up' || direction === 'left') {
-                newValues = mergeTiles(values);
-            } else if (direction === 'down' || direction === 'right') {
-                newValues = mergeTiles(values.reverse()).reverse();
-            }
-
+            const newValues = mergeTiles(values);
             group.forEach((cell, index) => {
-                if (cell.innerHTML != newValues[index]) hasMoved = true;
+                if (parseInt(cell.innerHTML) !== newValues[index]) hasMoved = true;
                 cell.innerHTML = newValues[index] || '';
                 cell.style.backgroundColor = getTileColor(newValues[index]);
+                if (newValues[index] !== values[index]) {
+                    cell.classList.add('merged-tile');
+                    setTimeout(() => cell.classList.remove('merged-tile'), 200);
+                }
             });
         });
 
@@ -125,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isGameOver()) {
                 clearInterval(timer);
                 gameOverDisplay.classList.remove('hidden');
+                saveLeaderboard();
             }
         }
     }
@@ -265,6 +268,32 @@ document.addEventListener('DOMContentLoaded', () => {
             highScore = savedHighScore;
             highScoreDisplay.innerHTML = `High Score: ${highScore}`;
         }
+    }
+
+    // Save the leaderboard to localStorage
+    function saveLeaderboard() {
+        const leaderboardScores = JSON.parse(localStorage.getItem('2048-leaderboard')) || [];
+        leaderboardScores.push({ score, time: seconds });
+        leaderboardScores.sort((a, b) => b.score - a.score || a.time - b.time);
+        if (leaderboardScores.length > 5) leaderboardScores.pop();
+        localStorage.setItem('2048-leaderboard', JSON.stringify(leaderboardScores));
+        displayLeaderboard();
+    }
+
+    // Load the leaderboard from localStorage
+    function loadLeaderboard() {
+        const leaderboardScores = JSON.parse(localStorage.getItem('2048-leaderboard')) || [];
+        displayLeaderboard(leaderboardScores);
+    }
+
+    // Display the leaderboard
+    function displayLeaderboard(leaderboardScores = []) {
+        leaderboard.innerHTML = '';
+        leaderboardScores.forEach((entry, index) => {
+            const listItem = document.createElement('li');
+            listItem.innerText = `${index + 1}. Score: ${entry.score}, Time: ${pad(Math.floor(entry.time / 60))}:${pad(entry.time % 60)}`;
+            leaderboard.appendChild(listItem);
+        });
     }
 
     // Event listeners
