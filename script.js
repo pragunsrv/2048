@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('reset-button');
     const undoButton = document.getElementById('undo-button');
     const aiButton = document.getElementById('ai-button');
+    const saveButton = document.getElementById('save-button');
+    const loadButton = document.getElementById('load-button');
     let score = 0;
     let previousState = [];
     let previousScore = 0;
@@ -171,10 +173,33 @@ document.addEventListener('DOMContentLoaded', () => {
         moveTiles(randomDirection);
     }
 
+    // Save the current game state to localStorage
+    function saveGame() {
+        const gameState = cells.map(cell => cell.innerHTML);
+        localStorage.setItem('2048-gameState', JSON.stringify(gameState));
+        localStorage.setItem('2048-score', score);
+    }
+
+    // Load the game state from localStorage
+    function loadGame() {
+        const savedGameState = JSON.parse(localStorage.getItem('2048-gameState'));
+        const savedScore = parseInt(localStorage.getItem('2048-score'));
+
+        if (savedGameState && savedScore >= 0) {
+            cells.forEach((cell, index) => {
+                cell.innerHTML = savedGameState[index];
+                cell.style.backgroundColor = getTileColor(savedGameState[index]);
+            });
+            updateScore(savedScore);
+        }
+    }
+
     // Event listeners
     resetButton.addEventListener('click', resetGame);
     undoButton.addEventListener('click', undoMove);
     aiButton.addEventListener('click', aiMove);
+    saveButton.addEventListener('click', saveGame);
+    loadButton.addEventListener('click', loadGame);
 
     document.addEventListener('keydown', event => {
         switch (event.key) {

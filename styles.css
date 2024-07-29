@@ -34,7 +34,7 @@ body {
     color: #776e65;
 }
 
-#reset-button, #undo-button, #ai-button {
+#reset-button, #undo-button, #ai-button, #save-button, #load-button {
     background-color: #8f7a66;
     border: none;
     border-radius: 5px;
@@ -45,7 +45,7 @@ body {
     margin-left: 10px;
 }
 
-#reset-button:hover, #undo-button:hover, #ai-button:hover {
+#reset-button:hover, #undo-button:hover, #ai-button:hover, #save-button:hover, #load-button:hover {
     background-color: #9f8b76;
 }
 
@@ -81,4 +81,3 @@ body {
 .hidden {
     display: none;
 }
-    
