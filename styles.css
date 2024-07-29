@@ -29,7 +29,7 @@ body {
     width: 100%;
 }
 
-#score, #high-score {
+#score, #high-score, #timer {
     font-size: 24px;
     color: #776e65;
 }

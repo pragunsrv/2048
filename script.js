@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cells = Array.from(document.getElementsByClassName('grid-cell'));
     const scoreDisplay = document.getElementById('score');
     const highScoreDisplay = document.getElementById('high-score');
+    const timerDisplay = document.getElementById('timer');
     const gameOverDisplay = document.getElementById('game-over');
     const congratulationsDisplay = document.getElementById('congratulations');
     const resetButton = document.getElementById('reset-button');
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let highScore = 0;
     let previousState = [];
     let previousScore = 0;
+    let timer;
+    let seconds = 0;
 
     // Initialize the game with two random tiles
     function initGame() {
@@ -21,6 +24,30 @@ document.addEventListener('DOMContentLoaded', () => {
         addRandomTile();
         updateScore(0);
         loadHighScore();
+        startTimer();
+    }
+
+    // Start the game timer
+    function startTimer() {
+        clearInterval(timer);
+        seconds = 0;
+        updateTimerDisplay();
+        timer = setInterval(() => {
+            seconds++;
+            updateTimerDisplay();
+        }, 1000);
+    }
+
+    // Update the timer display
+    function updateTimerDisplay() {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        timerDisplay.innerHTML = `Time: ${pad(minutes)}:${pad(remainingSeconds)}`;
+    }
+
+    // Pad the time values with leading zeros if necessary
+    function pad(value) {
+        return value.toString().padStart(2, '0');
     }
 
     // Save the current state for undo
@@ -78,17 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = group.map(cell => parseInt(cell.innerHTML) || 0);
             let newValues;
 
-            if (direction === 'up' || 'left') {
+            if (direction === 'up' || direction === 'left') {
                 newValues = mergeTiles(values);
-            } else if (direction === 'down' || 'right') {
+            } else if (direction === 'down' || direction === 'right') {
                 newValues = mergeTiles(values.reverse()).reverse();
             }
 
             group.forEach((cell, index) => {
-                if (cell.innerHTML != newValues[index]) {
-                    hasMoved = true;
-                }
-                cell.innerHTML = newValues[index] ? newValues[index] : '';
+                if (cell.innerHTML != newValues[index]) hasMoved = true;
+                cell.innerHTML = newValues[index] || '';
                 cell.style.backgroundColor = getTileColor(newValues[index]);
             });
         });
@@ -98,19 +123,22 @@ document.addEventListener('DOMContentLoaded', () => {
             updateScore(score);
             check2048();
             if (isGameOver()) {
+                clearInterval(timer);
                 gameOverDisplay.classList.remove('hidden');
             }
         }
     }
 
-    // Merge tiles with the same value
+    // Merge tiles based on the 2048 game rules
     function mergeTiles(values) {
-        const newValues = values.filter(value => value);
-        for (let i = 0; i < newValues.length - 1; i++) {
-            if (newValues[i] === newValues[i + 1]) {
-                newValues[i] *= 2;
-                updateScore(score + newValues[i]);
-                newValues[i + 1] = 0;
+        const newValues = [];
+        for (let i = 0; i < values.length; i++) {
+            if (values[i] === values[i + 1]) {
+                newValues.push(values[i] * 2);
+                score += values[i] * 2;
+                i++;
+            } else {
+                newValues.push(values[i]);
             }
         }
         return newValues.filter(value => value).concat(Array(4 - newValues.length).fill(0));
@@ -197,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('2048-gameState', JSON.stringify(gameState));
         localStorage.setItem('2048-score', score);
         localStorage.setItem('2048-highScore', highScore);
+        localStorage.setItem('2048-timer', seconds);
     }
 
     // Load the game state from localStorage
@@ -204,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedGameState = JSON.parse(localStorage.getItem('2048-gameState'));
         const savedScore = parseInt(localStorage.getItem('2048-score'));
         const savedHighScore = parseInt(localStorage.getItem('2048-highScore'));
+        const savedTimer = parseInt(localStorage.getItem('2048-timer'));
 
         if (savedGameState && savedScore >= 0) {
             cells.forEach((cell, index) => {
@@ -214,6 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (savedHighScore) {
                 highScore = savedHighScore;
                 highScoreDisplay.innerHTML = `High Score: ${highScore}`;
+            }
+            if (savedTimer >= 0) {
+                seconds = savedTimer;
+                updateTimerDisplay();
+                startTimer();
             }
         }
     }
